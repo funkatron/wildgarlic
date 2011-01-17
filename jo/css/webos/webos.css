@@ -6,20 +6,78 @@ body {
 	word-wrap: break-word;
 }
 
-joview, jotitle, jolabel, jocard, jodivider, jocontrol, jocontainer, jocaption, jobutton, jotabbar, jolist, jomenu {
+body * {
+	font: 20px 'Prelude', 'Coconut', sans-serif;
+}
+
+jobutton,
+joview,
+jolist,
+jolistitem,
+jomenu,
+jomenuitem,
+joexpando,
+joexpandotitle,
+jogroup,
+jocard,
+jostack,
+jotitle,
+jocaption,
+jolabel,
+jodivider,
+joinput,
+input,
+textarea,
+jotextarea,
+jooption,
+jooptionitem,
+jooptionitem,
+jocontainer,
+jotoggle {
+
 	text-align: left;
 	display: block;
 	padding: 0;
 	margin: 0;
 	
-	font: 20px 'Prelude', 'Coconut', sans-serif;
-	color: #000;
-	position: relative;
 	-webkit-user-select: none;
 	-moz-user-select: none;
 	user-select: none;
-	background: transparent;
+
 }
+
+
+joflexcol {
+	display: block;
+	display: -webkit-box;
+	margin: 0;
+
+	height: 100%;
+	width: 100%;
+	-webkit-box-orient: vertical;
+	-webkit-box-align: stretch;
+
+	margin: 0;
+}
+joflexcol > * {
+	-webkit-box-flex: 1;
+}
+
+joflexrow {
+	display: block;
+	display: -webkit-box;
+	margin: 0;
+	width: 100%;
+}
+joflexrow > * {
+	-webkit-box-flex: 1;
+	margin-right: 0;
+	position: relative;
+}
+joflexrow > *:last-child {
+	margin-right: 10px;
+}
+
 
 jodivider, jolabel, joinput, jocontrol {
 	margin: 0 10px 0 10px;
@@ -35,15 +93,18 @@ jodivider {
 	-webkit-border-image: url(palm-divider-line-thin.png) 2 2 2 2 repeat stretch;
 }
 
-jolabel {
+jolabel, jomenutitle, jolisttitle {
 	padding: 5px 0;
-	margin-top: 10px;
-	margin-right: 10px;
-	margin-left: 10px;
-	margin-bottom: 0;
+
+/*	float: right;*/
+	color: #1f75bf;
+	text-shadow: #ffffff 0px 1px 0px;
+	font-size: 14px;
+	text-transform: uppercase;
+
 }
 
-jotitle {
+jotitle, jonavbar {
 	background: none;
 	padding: 0;
 	border-width: 35px 24px 13px 24px;
@@ -61,29 +122,53 @@ jotitle {
 	text-overflow: ellipsis;
 }
 
+jonavbar {
+	display: block;
+	position: relative;
+	-webkit-box-flex: 0;
+}
+	jonavbar > joview {
+		display: block;
+	}
+	jonavbar > joflexrow {
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+	}
+	jonavbar > joflexrow > * {
+		-webkit-box-flex: 1;
+	}
+	jonavbar > joflexrow > jobackbutton {
+		-webkit-box-flex: 0;
+		max-width: 4em;
+	}
+	
 
 jocontainer {
 }
 
-joinput {
-	cursor: text;
-	display: block;
-	border: 2px solid #000;
-	-webkit-border-radius: 5px;
-	-moz-border-radius: 5px;
-	border-radius: 5px;
-	margin: 0 10px 10px 10px;
-	padding: 5px 10px;
-	background: #eee;
-	
-	white-space: nowrap;
-	overflow: hidden;
-	outline: none;
-
+joinput, input[type='text'], jotextarea {
 	-webkit-user-select: text;
 	-moz-user-select: text;
 	user-select: text;
+	display: block;
+	cursor: text;
+	overflow: hidden;
+	margin: 0 0px 25px 0px;
+	padding: 4px 0 0 0;
+	outline: none;
+	border-width: 10px;
+	text-align: left;
+	-webkit-border-image: url(textfield-shadow.png) 10 10 10 10 stretch stretch;
 }
+joinput {
+	white-space: nowrap;
+	overflow: hidden;
+	outline: none;
+}
+
 joinput.disabled {
 	opacity: .2;
 }
@@ -93,21 +178,18 @@ joinput.focus {
 	background: #fff;
 }
 
-jostack {
-	overflow-y: auto;
-	overflow-x: hidden;
-	display: block;
-	padding: 0;
-	margin: 0;
+jotextarea {
+	max-height:5em;
+	overflow:auto;
 }
 
 jostack {
 	display: block;
-	position: absolute;
-	top: 0;
-	left: 0;
-	bottom: 0;
-	right: 0;
+	padding: 0;
+	margin: 0;
+	display: block;
+	-webkit-perspective: 400px;
+	height: 100%;
 }
 
 jocard {
@@ -235,7 +317,7 @@ jogroup jomenu {
 		background-image: url(row-divider-last.png);		
 	}
 
-jomenutitle {
+jomenutitle, jolisttitle {
 	display: inline;
 }
 
@@ -280,6 +362,12 @@ jogroup {
 	-webkit-border-image: url(palm-group-unlabeled.png) 18 18 18 18 repeat repeat;
 	display: block;
 }
+
+
+jobackbutton {
+	display:none;
+}
+
 
 h1 {
 	margin: 0 0 10px 0;
