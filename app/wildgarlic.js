@@ -12,7 +12,7 @@ $L = function(str) {
 // init jo
 jo.load();
 
-
+// turn on debugging
 jo.setDebug(true);
 
 
@@ -20,11 +20,13 @@ var WildGarlic = function() {
 	
 	var self = this;
 	
+	// set up our model
 	self.model = new joRecord({
-		searchResults  : [],
-		selectedResult : null,
-		searchText     : ''
+		searchText     : '',
+		selectedResult : null
 	});
+	
+	self.resultsModel = new joDataSource([]);
 	
 	self.ui = {};
 	
@@ -35,25 +37,7 @@ var WildGarlic = function() {
 	function load() {
 		
 		
-		
-		joDefer(function() {
-			// dynamic CSS loading based on platform, in this case FireFox
-			// doesn't do stack transitions well, so we're downshifting
-
-			if (jo.matchPlatform("iphone ipad safari")) {
-				joDOM.loadCSS("./jo/css/aluminum/webkit.css");
-			} else if (jo.matchPlatform("chrome webkit webos")) {
-				joDOM.loadCSS("./jo/css/aluminum/webkit.css");
-				joDOM.loadCSS("./jo/css/aluminum/chrome.css");
-			} else {
-				joDOM.loadCSS("./jo/css/aluminum/gecko.css");
-			}
-			// as an optimization, I recommend in a downloadable app that
-			// you create a custom CSS file for each platform using some
-			// sort of make-like process.
-		}, this);
-		
-		
+		initCSS();
 		
 		// if webOS, tell it the stage is ready
 		if (window.PalmSystem) {
@@ -68,8 +52,7 @@ var WildGarlic = function() {
 				new joFlexcol([
 					self.ui.nav   = new joNavbar(),
 					self.ui.stack = new joStackScroller()
-				]),
-				self.ui.toolbar = new joToolbar("This is a footer, neat huh?")
+				])
 			]).setStyle({position: "absolute", top: "0", left: "0", bottom: "0", right: "0"})
 		);
 		self.ui.nav.setStack(self.ui.stack);
@@ -88,8 +71,7 @@ var WildGarlic = function() {
 		
 		
 		
-		joGesture.forwardEvent.subscribe(self.ui.stack.forward, self.ui.stack);
-		joGesture.backEvent.subscribe(self.ui.stack.pop, self.ui.stack);
+		initGestures();
 		
 		
 		
@@ -103,6 +85,37 @@ var WildGarlic = function() {
 
 	
 	
+	function initCSS() {
+		/**
+		 * dynamically certain CSS 
+		 */
+		// joDefer(function() {
+		// 	// dynamic CSS loading based on platform, in this case FireFox
+		// 	// doesn't do stack transitions well, so we're downshifting
+		// 
+		// 	if (jo.matchPlatform("iphone ipad safari")) {
+		// 		joDOM.loadCSS("./jo/css/aluminum/webkit.css");
+		// 	} else if (jo.matchPlatform("chrome webkit webos")) {
+		// 		joDOM.loadCSS("./jo/css/aluminum/webkit.css");
+		// 		joDOM.loadCSS("./jo/css/aluminum/chrome.css");
+		// 	} else {
+		// 		joDOM.loadCSS("./jo/css/aluminum/gecko.css");
+		// 	}
+		// 	// as an optimization, I recommend in a downloadable app that
+		// 	// you create a custom CSS file for each platform using some
+		// 	// sort of make-like process.
+		// }, this);
+	}
+	
+	
+	
+	function initGestures() {
+		joGesture.forwardEvent.subscribe(self.ui.stack.forward, self.ui.stack);
+		joGesture.backEvent.subscribe(self.ui.stack.pop, self.ui.stack);
+	}
+	
+	
+	
 	/**
 	 * set up the home card 
 	 */
@@ -112,13 +125,17 @@ var WildGarlic = function() {
 		/**
 		 * setup results list 
 		 */
-		var resultsList = new joList(self.model.link('searchResults'));
+		var resultsList = new joMenu();
+		resultsList.setValueSource(self.resultsModel);
+
+		
 		// formatItem is your renderer
 		resultsList.formatItem = function(data, index) {
 			var title = data.word + " (" + data.thumbs_up + ")";
 			// call the prototype version so we get the cool formatting
 			return joList.prototype.formatItem.call(this, title, index);
 		};
+		
 		// comparison method
 		resultsList.compareItems = function(a,b) {
 			if (a.thumbsUp > b.thumbsUp)
@@ -135,10 +152,17 @@ var WildGarlic = function() {
 		 * create the card 
 		 */
 		var card = new joCard([
-			new joInput(self.model.link('searchText')),
-			new joButton($L('Search')).selectEvent.subscribe(search, self),
-			resultsList
+			new joGroup([
+				new joFlexrow([new joInput(self.model.link('searchText'))]),
+				new joButton($L('Search')).selectEvent.subscribe(search, self)
+			]),
+			new joGroup([resultsList])
 		]).setTitle($L('WildGarlic'));
+		
+		
+		card.activate = function() {
+			resultsList.setDataSource(self.resultsModel);
+		};
 
 		return card;
 	}
@@ -177,7 +201,7 @@ var WildGarlic = function() {
 				function(data, context, error) {
 					if (data) {
 						var result = JSON.parse(data);
-						self.model.setProperty('searchResults', result.list);
+						self.resultsModel.setData(result.list);
 					}
 				},
 				self
@@ -190,9 +214,10 @@ var WildGarlic = function() {
 	 * handle taps on the search items 
 	 */
 	function onItemSelect(index) {
-		var results = self.model.getProperty('searchResults');
+		var results = self.resultsModel.getData();
 		self.model.setProperty('selectedResult', results[index]);
 		self.ui.stack.push(self.ui.cards.def);
+		
 	}
 	
 	
@@ -202,7 +227,9 @@ var WildGarlic = function() {
 	 */
 	return {
 		"load": load,
-		"search": search
+		"search": search,
+		"model": self.model,
+		"resultsModel": self.resultsModel
 	};
 	
 };
@@ -210,4 +237,4 @@ var WildGarlic = function() {
 /**
  * instance as 'app' 
  */
-var app = new WildGarlic();
+var App = new WildGarlic();
