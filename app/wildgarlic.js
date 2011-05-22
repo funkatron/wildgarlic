@@ -126,7 +126,7 @@ var WildGarlic = function() {
 		 * setup results list 
 		 */
 		var resultsList = new joMenu();
-		resultsList.setValueSource(self.resultsModel);
+		// resultsList.setValueSource(self.resultsModel);
 
 		
 		// formatItem is your renderer
